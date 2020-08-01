@@ -1,0 +1,6 @@
+#!/bin/bash
+
+CONNETION_ARGS="-h <%= @facts['networking']['fqdn'] %>"
+/usr/pgsql-9.6/bin/psql $CONNECTION_ARGS -c "CREATE DATABASE sensu_events"
+/usr/pgsql-9.6/bin/psql $CONNECTION_ARGS -c "CREATE USER sensu WITH ENCRYPTED PASSWORD 'sensu'"
+/usr/pgsql-9.6/bin/psql $CONNECTION_ARGS -c "GRANT ALL PRIVILEGES ON DATABASE sensu_events TO sensu"

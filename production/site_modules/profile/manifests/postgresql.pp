@@ -35,6 +35,14 @@ class profile::postgresql (
     },
   }
 
+  file { '/opt/patroni-bootstrap.sh':
+    ensure  => 'file',
+    owner   => 'postgres',
+    group   => 'root',
+    mode    => '0750',
+    content => template('profile/patroni-bootstrap.sh.erb'),
+    before  => Class['patroni'],
+  }
   yum::install { 'patroni':
     source => 'https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm',
     before => Class['patroni'],
@@ -50,14 +58,22 @@ class profile::postgresql (
     pgsql_parameters        => {
       'max_connections' => 5000,
     },
-    pgsql_pg_hba            => [
+    bootstrap_pg_hba        => [
+      'local all postgres ident',
       'host all all 0.0.0.0/0 md5',
       'host replication repl 0.0.0.0/0 md5',
+    ],
+    pgsql_pg_hba            => [
+      'local all postgres ident',
+      'host all all 0.0.0.0/0 md5',
+      'host replication repl 0.0.0.0/0 md5',
+      'host sensu_events sensu 0.0.0.0/0 password',
     ],
     superuser_username      => 'postgres',
     superuser_password      => 'postgrespassword',
     replication_username    => 'repl',
     replication_password    => 'replpassword',
+    bootstrap_post_bootstrap => '/opt/patroni-bootstrap.sh',
   }
   File[$patroni::config_path] ~> Service[$patroni::servicename]
 }

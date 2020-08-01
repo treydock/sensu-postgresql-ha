@@ -1,5 +1,7 @@
 #!/bin/bash
 
+setenforce 0
+
 # using this instead of "rpm -Uvh" to resolve dependencies
 function rpm_install() {
     package=$(echo $1 | awk -F "/" '{print $NF}')
@@ -28,7 +30,7 @@ fi
 if [ -d /etc/puppetlabs/code/environments/production ]; then
   rm -rf /etc/puppetlabs/code/environments/production
 fi
-puppet resource file /etc/puppetlabs/code/environments/production ensure=link target=/vagrant/production
+puppet resource file /etc/puppetlabs/code/environments/production ensure=link target=/vagrant/production force=true
 
 puppet resource host psql1.example.com ensure=present ip=10.0.0.101 host_aliases=psql1
 puppet resource host psql2.example.com ensure=present ip=10.0.0.102 host_aliases=psql2
