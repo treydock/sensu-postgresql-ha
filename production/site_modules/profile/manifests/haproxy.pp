@@ -1,5 +1,20 @@
 class profile::haproxy {
-  include haproxy
+  class { 'haproxy':
+    global_options => {
+      maxconn => 100,
+    },
+    defaults_options => {
+      log     => 'global',
+      mode    => 'tcp',
+      retries => 2,
+      timeout => [
+        'client 30m',
+        'connect 4s',
+        'server 30m',
+        'check 5s',
+      ],
+    },
+  }
 
   haproxy::listen { 'stats':
     collect_exported => false,
