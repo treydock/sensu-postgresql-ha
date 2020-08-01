@@ -1,0 +1,3 @@
+production/modules
+.vagrant
+Gemfile.lock
