@@ -13,6 +13,8 @@ class profile::sensu_backend {
     manage_postgresql_db => false,
     postgresql_host      => 'haproxy',
     postgresql_port      => 5000,
+    #postgresql_host      => 'psql1',
+    #postgresql_port      => 5432,
     postgresql_dbname    => 'sensu_events',
     postgresql_user      => 'sensu',
     postgresql_password  => 'sensu',
