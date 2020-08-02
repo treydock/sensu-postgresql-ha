@@ -1,6 +1,7 @@
 #!/bin/bash
 
 setenforce 0
+sed -r -i 's/SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
 
 # using this instead of "rpm -Uvh" to resolve dependencies
 function rpm_install() {
