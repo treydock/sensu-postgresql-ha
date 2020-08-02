@@ -16,15 +16,6 @@ class profile::haproxy {
     },
   }
 
-  haproxy::listen { 'stats':
-    collect_exported => false,
-    ipaddress        => '*',
-    ports            => '7000',
-    options          => [
-      { 'stats' => 'enable' },
-      { 'stats' => 'uri /' },
-    ],
-  }
   haproxy::listen { 'postgresql':
     collect_exported  => false,
     ipaddress         => '*',

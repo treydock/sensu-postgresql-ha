@@ -6,6 +6,8 @@ class profile::postgresql (
     'psql3' => 'psql3',
   }
 ) {
+  include profile::ssl
+
   class { '::postgresql::globals':
     encoding            => 'UTF-8',
     locale              => 'en_US.UTF-8',
@@ -91,4 +93,19 @@ class profile::postgresql (
     bootstrap_post_bootstrap => '/opt/patroni-bootstrap.sh',
   }
   File[$patroni::config_path] ~> Service[$patroni::servicename]
+
+  $postgres_dynamic_config = {
+    'ssl'           => 'true',
+    'ssl_cert_file' => '/etc/ssl/psql.pem',
+    'ssl_key_file'  => '/etc/ssl/psql-key.pem',
+    'ssl_ca_file'   => '/vagrant/ssl/ca.pem',
+  }
+  $postgres_dynamic_config.each |$key, $value| {
+    exec { "postgres-${key}":
+      command => "/opt/app/patroni/bin/patronictl -c /opt/app/patroni/etc/postgresql.yml edit-config --force -p ${key}=${value}",
+      unless  => "/opt/app/patroni/bin/patronictl -c /opt/app/patroni/etc/postgresql.yml show-config cluster | grep '${key}: ${value}'",
+      require => Class['::patroni::config'],
+      notify  => Service[$patroni::servicename],
+    }
+  }
 }
