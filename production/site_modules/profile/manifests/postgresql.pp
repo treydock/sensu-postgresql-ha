@@ -18,20 +18,30 @@ class profile::postgresql (
 
   $etcd_ip = $facts['networking']['interfaces'][$etcd_interface]['ip']
   $etcd_hosts = $etcd_cluster_hosts.map |$name, $hostname| {
-    "${name}=http://${hostname}:2380"
+    "${name}=https://${hostname}:2380"
   }
   class { 'etcd':
     config => {
       'data-dir'                    => '/var/lib/etcd',
       'name'                        => $facts['networking']['hostname'],
-      'initial-advertise-peer-urls' => "http://${etcd_ip}:2380",
-      'listen-peer-urls'            => 'http://0.0.0.0:2380',
-      'listen-client-urls'          => 'http://0.0.0.0:2379',
-      'advertise-client-urls'       => "http://${etcd_ip}:2379",
+      'initial-advertise-peer-urls' => "https://${etcd_ip}:2380",
+      'listen-peer-urls'            => 'https://0.0.0.0:2380',
+      'listen-client-urls'          => 'https://0.0.0.0:2379',
+      'advertise-client-urls'       => "https://${etcd_ip}:2379",
       'initial-cluster-token'       => 'etcd-cluster-1',
       'initial-cluster'             => join($etcd_hosts, ','),
       'initial-cluster-state'       => 'new',
       'enable-v2'                   => true,
+      'client-transport-security'   => {
+        'cert-file'       => "/vagrant/ssl/${facts['networking']['hostname']}.pem",
+        'key-file'        => "/vagrant/ssl/${facts['networking']['hostname']}-key.pem",
+        'trusted-ca-file' => '/vagrant/ssl/ca.pem',
+      },
+      'peer-transport-security'     => {
+        'cert-file'       => "/vagrant/ssl/${facts['networking']['hostname']}.pem",
+        'key-file'        => "/vagrant/ssl/${facts['networking']['hostname']}-key.pem",
+        'trusted-ca-file' => '/vagrant/ssl/ca.pem',
+      },
     },
   }
 
@@ -50,6 +60,11 @@ class profile::postgresql (
   class { 'patroni':
     scope                   => 'cluster',
     use_etcd                => true,
+    etcd_host               => $facts['networking']['hostname'],
+    etcd_protocol           => 'https',
+    etcd_cacert             => '/vagrant/ssl/ca.pem',
+    etcd_cert               => '/vagrant/ssl/client.pem',
+    etcd_key                => '/vagrant/ssl/client-key.pem',
     pgsql_connect_address   => "${facts['networking']['fqdn']}:5432",
     restapi_connect_address => "${facts['networking']['fqdn']}:8008",
     pgsql_bin_dir           => '/usr/pgsql-9.6/bin',
