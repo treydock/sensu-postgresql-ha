@@ -47,6 +47,12 @@ class profile::postgresql (
     },
   }
 
+  $postgres_ssl_config = {
+    'ssl'           => 'true',
+    'ssl_cert_file' => '/etc/ssl/psql.pem',
+    'ssl_key_file'  => '/etc/ssl/psql-key.pem',
+    'ssl_ca_file'   => '/vagrant/ssl/ca.pem',
+  }
   file { '/opt/patroni-bootstrap.sh':
     ensure  => 'file',
     owner   => 'postgres',
@@ -72,7 +78,7 @@ class profile::postgresql (
     pgsql_bin_dir           => '/usr/pgsql-9.6/bin',
     pgsql_data_dir          => '/var/lib/pgsql/9.6/data',
     pgsql_pgpass_path       => '/var/lib/pgsql/pgpass',
-    pgsql_parameters        => {
+    pgsql_parameters        => $postgres_ssl_config + {
       'max_connections' => 5000,
     },
     bootstrap_pg_hba        => [
@@ -93,19 +99,4 @@ class profile::postgresql (
     bootstrap_post_bootstrap => '/opt/patroni-bootstrap.sh',
   }
   File[$patroni::config_path] ~> Service[$patroni::servicename]
-
-  $postgres_dynamic_config = {
-    'ssl'           => 'true',
-    'ssl_cert_file' => '/etc/ssl/psql.pem',
-    'ssl_key_file'  => '/etc/ssl/psql-key.pem',
-    'ssl_ca_file'   => '/vagrant/ssl/ca.pem',
-  }
-  $postgres_dynamic_config.each |$key, $value| {
-    exec { "postgres-${key}":
-      command => "/opt/app/patroni/bin/patronictl -c /opt/app/patroni/etc/postgresql.yml edit-config --force -p ${key}=${value}",
-      unless  => "/opt/app/patroni/bin/patronictl -c /opt/app/patroni/etc/postgresql.yml show-config cluster | grep '${key}: ${value}'",
-      require => Class['::patroni::config'],
-      notify  => Service[$patroni::servicename],
-    }
-  }
 }
