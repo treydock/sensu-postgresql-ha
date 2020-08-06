@@ -31,20 +31,20 @@ class profile::haproxy {
     server_names      => 'psql1',
     ipaddresses       => '10.0.0.101',
     ports             => '5432',
-    options           => 'maxconn 100 check port 8008',
+    options           => 'maxconn 100 check port 8008 ssl ca-file /vagrant/ssl/ca.pem',
   }
   haproxy::balancermember { 'psql2':
     listening_service => 'postgresql',
     server_names      => 'psql2',
     ipaddresses       => '10.0.0.102',
     ports             => '5432',
-    options           => 'maxconn 100 check port 8008',
+    options           => 'maxconn 100 check port 8008 ssl ca-file /vagrant/ssl/ca.pem',
   }
   haproxy::balancermember { 'psql3':
     listening_service => 'postgresql',
     server_names      => 'psql3',
     ipaddresses       => '10.0.0.103',
     ports             => '5432',
-    options           => 'maxconn 100 check port 8008',
+    options           => 'maxconn 100 check port 8008 ssl ca-file /vagrant/ssl/ca.pem',
   }
 }

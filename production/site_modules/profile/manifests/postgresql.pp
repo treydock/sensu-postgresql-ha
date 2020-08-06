@@ -97,6 +97,8 @@ class profile::postgresql (
     replication_username    => 'repl',
     replication_password    => 'replpassword',
     bootstrap_post_bootstrap => '/opt/patroni-bootstrap.sh',
+    restapi_certfile         => "/vagrant/ssl/${facts['networking']['hostname']}.pem",
+    restapi_keyfile          => "/vagrant/ssl/${facts['networking']['hostname']}-key.pem",
   }
   File[$patroni::config_path] ~> Service[$patroni::servicename]
 }
