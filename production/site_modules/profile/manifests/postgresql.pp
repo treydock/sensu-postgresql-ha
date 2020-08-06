@@ -4,7 +4,7 @@ class profile::postgresql (
     'psql1' => 'psql1',
     'psql2' => 'psql2',
     'psql3' => 'psql3',
-  }
+  },
 ) {
   include profile::ssl
 
@@ -99,6 +99,8 @@ class profile::postgresql (
     bootstrap_post_bootstrap => '/opt/patroni-bootstrap.sh',
     restapi_certfile         => "/vagrant/ssl/${facts['networking']['hostname']}.pem",
     restapi_keyfile          => "/vagrant/ssl/${facts['networking']['hostname']}-key.pem",
+    restapi_cafile           => '/vagrant/ssl/ca.pem',
+    restapi_verify_client    => 'required',
   }
   File[$patroni::config_path] ~> Service[$patroni::servicename]
 }
