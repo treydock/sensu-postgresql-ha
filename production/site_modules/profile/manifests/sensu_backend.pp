@@ -1,14 +1,11 @@
 class profile::sensu_backend {
   class { 'sensu':
-    api_host      => 'sensu-backend',
-    ssl_ca_source => '/vagrant/ssl/ca.pem',
+    api_host => 'sensu-backend.example.com',
   }
   class { 'sensu::agent':
-    backends => ['sensu-backend:8081'],
+    backends => ['sensu-backend.example.com:8081'],
   }
   class { 'sensu::backend':
-    ssl_cert_source      => '/vagrant/ssl/sensu-backend.pem',
-    ssl_key_source       => '/vagrant/ssl/sensu-backend-key.pem',
     datastore            => 'postgresql',
     manage_postgresql_db => false,
     postgresql_host      => 'haproxy',
@@ -19,7 +16,10 @@ class profile::sensu_backend {
     postgresql_user      => 'sensu',
     postgresql_password  => 'sensu',
   }
-
+  $dsn = "${sensu::backend::datastore::postgresql::dsn}?sslmode=require"
+  Sensu_postgres_config <| title == $sensu::backend::postgresql_name |> {
+    dsn => $dsn,
+  }
   file { '/var/lib/sensu/.postgresql':
     ensure  => 'directory',
     owner   => 'sensu',

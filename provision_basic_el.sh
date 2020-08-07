@@ -13,11 +13,8 @@ function rpm_install() {
 
 release=$(awk -F \: '{print $5}' /etc/system-release-cpe)
 
-rpm --import http://download-ib01.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-${release}
-rpm --import http://yum.puppetlabs.com/RPM-GPG-KEY-puppet
-rpm --import http://vault.centos.org/RPM-GPG-KEY-CentOS-${release}
-
-yum install -y wget
+yum install -y epel-release
+yum install -y wget jq
 
 # install and configure puppet
 rpm -qa | grep -q puppet
@@ -27,6 +24,22 @@ then
     yum -y install puppet-agent
     ln -s /opt/puppetlabs/puppet/bin/puppet /usr/bin/puppet
 fi
+
+if [[ "$HOSTNAME" = "psql1.example.com" ]] ; then
+  cat > /etc/puppetlabs/puppet/autosign.conf <<EOF
+psql1.example.com
+psql2.example.com
+psql3.example.com
+haproxy.example.com
+sensu-backend.example.com
+EOF
+  yum -y install puppetserver
+  sed -i 's/2g /512m /g' /etc/sysconfig/puppetserver
+  systemctl enable puppetserver
+  systemctl start puppetserver
+fi
+
+puppet config set --section main server psql1.example.com
 
 if [ -d /etc/puppetlabs/code/environments/production ]; then
   rm -rf /etc/puppetlabs/code/environments/production

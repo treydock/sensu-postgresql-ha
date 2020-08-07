@@ -34,39 +34,41 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.define "psql1", primary: true, autostart: true do |p|
+    p.vm.provider :virtualbox do |vb|
+      vb.customize ["modifyvm", :id, "--memory", "2048"]
+    end
     p.vm.box = "centos/7"
     p.vm.hostname = 'psql1.example.com'
     p.vm.network :private_network, ip: '10.0.0.101'
     p.vm.provision :shell, path:"provision_basic_el.sh"
-    p.vm.provision :shell, inline: 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
-
+    p.vm.provision :shell, inline: 'puppet agent -t'
   end
   config.vm.define "psql2", primary: true, autostart: true do |p|
     p.vm.box = "centos/7"
     p.vm.hostname = 'psql2.example.com'
     p.vm.network :private_network, ip: '10.0.0.102'
     p.vm.provision :shell, :path => "provision_basic_el.sh"
-    p.vm.provision :shell, inline: 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
+    p.vm.provision :shell, inline: 'puppet agent -t'
   end
   config.vm.define "psql3", primary: true, autostart: true do |p|
     p.vm.box = "centos/7"
     p.vm.hostname = 'psql3.example.com'
     p.vm.network :private_network, ip: '10.0.0.103'
     p.vm.provision :shell, :path => "provision_basic_el.sh"
-    p.vm.provision :shell, inline: 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
+    p.vm.provision :shell, inline: 'puppet agent -t'
   end
   config.vm.define "haproxy", primary: true, autostart: true do |p|
     p.vm.box = "centos/7"
     p.vm.hostname = 'haproxy.example.com'
     p.vm.network :private_network, ip: '10.0.0.104'
     p.vm.provision :shell, :path => "provision_basic_el.sh"
-    p.vm.provision :shell, inline: 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
+    p.vm.provision :shell, inline: 'puppet agent -t'
   end
   config.vm.define "sensu-backend", primary: true, autostart: true do |p|
     p.vm.box = "centos/7"
     p.vm.hostname = 'sensu-backend.example.com'
     p.vm.network :private_network, ip: '10.0.0.105'
     p.vm.provision :shell, :path => "provision_basic_el.sh"
-    p.vm.provision :shell, inline: 'puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp'
+    p.vm.provision :shell, inline: 'puppet agent -t'
   end
 end

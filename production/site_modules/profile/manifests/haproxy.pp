@@ -42,12 +42,12 @@ class profile::haproxy {
   }
   concat::fragment { 'haproxy-ssl-cert':
     target => '/etc/haproxy/haproxy.pem',
-    source => '/vagrant/ssl/haproxy.pem',
+    source => $facts['puppet_hostcert'],
     order  => '01',
   }
   concat::fragment { 'haproxy-ssl-key':
     target => '/etc/haproxy/haproxy.pem',
-    source => '/vagrant/ssl/haproxy-key.pem',
+    source => $facts['puppet_hostprivkey'],
     order  => '02',
   }
 
@@ -66,21 +66,21 @@ class profile::haproxy {
     server_names      => 'psql1',
     ipaddresses       => 'psql1',
     ports             => '5432',
-    options           => 'maxconn 100 check port 8008 check-ssl ca-file /vagrant/ssl/ca.pem crt /etc/haproxy/haproxy.pem',
+    options           => "maxconn 100 check port 8008 check-ssl ca-file ${facts['puppet_localcacert']} crt /etc/haproxy/haproxy.pem",
   }
   haproxy::balancermember { 'psql2':
     listening_service => 'postgresql',
     server_names      => 'psql2',
     ipaddresses       => 'psql2',
     ports             => '5432',
-    options           => 'maxconn 100 check port 8008 check-ssl ca-file /vagrant/ssl/ca.pem crt /etc/haproxy/haproxy.pem',
+    options           => "maxconn 100 check port 8008 check-ssl ca-file ${facts['puppet_localcacert']} crt /etc/haproxy/haproxy.pem",
   }
   haproxy::balancermember { 'psql3':
     listening_service => 'postgresql',
     server_names      => 'psql3',
     ipaddresses       => 'psql3',
     ports             => '5432',
-    options           => 'maxconn 100 check port 8008 check-ssl ca-file /vagrant/ssl/ca.pem crt /etc/haproxy/haproxy.pem',
+    options           => "maxconn 100 check port 8008 check-ssl ca-file ${facts['puppet_localcacert']} crt /etc/haproxy/haproxy.pem",
 
   }
 }
