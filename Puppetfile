@@ -8,10 +8,7 @@ mod 'richardc/datacat', '0.6.2'
 
 mod 'puppet/yum', '4.3.0'
 mod 'puppetlabs/postgresql', '6.6.0'
-#mod 'jadestorm/patroni', '0.1.5'
-# Use fork until merged and released:
-# https://github.com/jadestorm/puppet-patroni/pull/9
-mod 'patroni', git: 'https://github.com/treydock/puppet-patroni.git', branch: 'verify_client'
+mod 'jadestorm/patroni', '0.1.6'
 mod 'tailoredautomation/etcd', '0.3.0'
 mod 'puppetlabs/haproxy', '4.2.1'
 mod 'sensu/sensu', '4.12.0'
