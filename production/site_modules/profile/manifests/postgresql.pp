@@ -5,34 +5,6 @@ class profile::postgresql (
     'psql3' => 'psql3.example.com',
   },
 ) {
-  class { '::postgresql::globals':
-    encoding            => 'UTF-8',
-    locale              => 'en_US.UTF-8',
-    manage_package_repo => true,
-    version             => '9.6',
-  }
-  package { ['postgresql96-server','postgresql96-contrib']:
-    ensure => present,
-  }
-
-  file { '/var/lib/pgsql/key.pem':
-    ensure  => 'file',
-    source  => $facts['puppet_hostprivkey'],
-    owner   => 'postgres',
-    group   => 'postgres',
-    mode    => '0600',
-    require => Package['postgresql96-server'],
-    before  => Class['patroni'],
-  }
-  file { '/var/lib/pgsql/cert.pem':
-    ensure  => 'file',
-    source  => $facts['puppet_hostcert'],
-    owner   => 'postgres',
-    group   => 'postgres',
-    mode    => '0600',
-    require => Package['postgresql96-server'],
-    before  => Class['patroni'],
-  }
   file { '/etc/ssl':
     ensure => 'directory',
   }
@@ -86,18 +58,6 @@ class profile::postgresql (
     'ssl_key_file'  => '/var/lib/pgsql/key.pem',
     'ssl_ca_file'   => $facts['puppet_localcacert'],
   }
-  file { '/opt/patroni-bootstrap.sh':
-    ensure  => 'file',
-    owner   => 'postgres',
-    group   => 'root',
-    mode    => '0750',
-    content => template('profile/patroni-bootstrap.sh.erb'),
-    before  => Class['patroni'],
-  }
-  yum::install { 'patroni':
-    source => 'https://github.com/cybertec-postgresql/patroni-packaging/releases/download/1.6.5-1/patroni-1.6.5-1.rhel7.x86_64.rpm',
-    before => Class['patroni'],
-  }
   class { 'patroni':
     scope                   => 'cluster',
     use_etcd                => true,
@@ -135,5 +95,31 @@ class profile::postgresql (
     restapi_cafile           => $facts['puppet_localcacert'],
     restapi_verify_client    => 'required',
   }
-  File[$patroni::config_path] ~> Service[$patroni::servicename]
+  file { '/var/lib/pgsql/key.pem':
+    ensure  => 'file',
+    source  => $facts['puppet_hostprivkey'],
+    owner   => 'postgres',
+    group   => 'postgres',
+    mode    => '0600',
+    require => Package[$patroni::postgresql_package_name],
+    before  => Service['patroni'],
+  }
+  file { '/var/lib/pgsql/cert.pem':
+    ensure  => 'file',
+    source  => $facts['puppet_hostcert'],
+    owner   => 'postgres',
+    group   => 'postgres',
+    mode    => '0600',
+    require => Package[$patroni::postgresql_package_name],
+    before  => Service['patroni'],
+  }
+  file { '/opt/patroni-bootstrap.sh':
+    ensure  => 'file',
+    owner   => 'postgres',
+    group   => 'root',
+    mode    => '0750',
+    content => template('profile/patroni-bootstrap.sh.erb'),
+    require => Package[$patroni::postgresql_package_name],
+    before  => Service['patroni'],
+  }
 }
