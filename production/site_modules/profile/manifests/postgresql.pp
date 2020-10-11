@@ -101,7 +101,7 @@ class profile::postgresql (
     owner   => 'postgres',
     group   => 'postgres',
     mode    => '0600',
-    require => Package[$patroni::postgresql_package_name],
+    require => Package['patroni-postgresql-package'],
     before  => Service['patroni'],
   }
   file { '/var/lib/pgsql/cert.pem':
@@ -110,7 +110,7 @@ class profile::postgresql (
     owner   => 'postgres',
     group   => 'postgres',
     mode    => '0600',
-    require => Package[$patroni::postgresql_package_name],
+    require => Package['patroni-postgresql-package'],
     before  => Service['patroni'],
   }
   file { '/opt/patroni-bootstrap.sh':
@@ -119,7 +119,7 @@ class profile::postgresql (
     group   => 'root',
     mode    => '0750',
     content => template('profile/patroni-bootstrap.sh.erb'),
-    require => Package[$patroni::postgresql_package_name],
+    require => Package['patroni-postgresql-package'],
     before  => Service['patroni'],
   }
 }

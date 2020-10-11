@@ -12,7 +12,7 @@ mod 'puppetlabs/postgresql', '6.6.0'
 #mod 'tailoredautomation/patroni', '1.0.0'
 # TODO: Use branch until merged and released
 # https://github.com/tailored-automation/puppet-module-patroni/pull/5
-mod 'patroni', git: 'https://github.com/tailored-automation/puppet-module-patroni.git', branch: 'psql-version'
+mod 'patroni', git: 'https://github.com/tailored-automation/puppet-module-patroni.git', branch: 'master'
 mod 'tailoredautomation/etcd', '0.3.0'
 mod 'puppetlabs/haproxy', '4.2.1'
 mod 'sensu/sensu', '4.12.0'
